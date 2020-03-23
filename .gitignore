@@ -1,0 +1,13 @@
+################################################################################
+# Team: Jammed Games
+# Game: Space Flop
+# Game Jam: Major Jam - https://itch.io/jam/major-jam-isolation
+# Files and folders to ignore.
+################################################################################
+
+/.vs
+/Build
+/Binaries
+/Intermediate
+/Saved
+/SpaceFlop.sln
