@@ -12,5 +12,27 @@
 				"Engine"
 			]
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "SoundUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "Spatialization",
+			"Enabled": true
+		},
+		{
+			"Name": "Synthesis",
+			"Enabled": true
+		},
+		{
+			"Name": "TimeSynth",
+			"Enabled": true
+		},
+		{
+			"Name": "AudioSynesthesia",
+			"Enabled": true
+		}
 	]
 }

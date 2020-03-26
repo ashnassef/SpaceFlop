@@ -1,0 +1,17 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Unreal Audio Kit",
+	"Description": "Audio Tools for UE4 developed by The Mooseman",
+	"Category": "Other",
+	"CreatedBy": "Skyler Moosman",
+	"CreatedByURL": "www.themooseman.net",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EngineVersion": "4.24.0",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"Installed": true
+}
