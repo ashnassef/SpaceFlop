@@ -33,6 +33,10 @@
 		{
 			"Name": "AudioSynesthesia",
 			"Enabled": true
+		},
+		{
+			"Name": "UnrealAudioKit",
+			"Enabled": true
 		}
 	]
 }
