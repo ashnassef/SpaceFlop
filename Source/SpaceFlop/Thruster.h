@@ -19,8 +19,17 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, Category = Assets)
+	class UStaticMeshComponent* m_ThrusterMesh;
+
+	UPROPERTY(EditAnywhere, Category = Assets)
+	class UParticleSystemComponent* m_ParticleEmitter;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable)
+	void FireThruster(bool IsFiring);
 
 };

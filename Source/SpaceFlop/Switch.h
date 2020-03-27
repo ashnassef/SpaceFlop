@@ -23,10 +23,10 @@ protected:
         class UBoxComponent* m_BoxCollider;
 
     UPROPERTY(EditAnywhere, Category = Assets)
-        class UStaticMeshComponent* m_ButtonBaseMesh;
+        class UStaticMeshComponent* m_SwitchBaseMesh;
 
     UPROPERTY(EditAnywhere, Category = Assets)
-        class UStaticMeshComponent* m_ButtonMesh;
+        class UStaticMeshComponent* m_SwitchMesh;
 
 public:	
 	// Called every frame

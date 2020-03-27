@@ -14,11 +14,11 @@ ASwitch::ASwitch()
     m_BoxCollider = CreateDefaultSubobject<UBoxComponent>("Box Collider");
     RootComponent = m_BoxCollider;
 
-    m_ButtonMesh = CreateDefaultSubobject<UStaticMeshComponent>("Button Mesh");
-    m_ButtonMesh->SetupAttachment(RootComponent);
+    m_SwitchMesh = CreateDefaultSubobject<UStaticMeshComponent>("Switch Mesh");
+    m_SwitchMesh->SetupAttachment(RootComponent);
 
-    m_ButtonBaseMesh = CreateDefaultSubobject<UStaticMeshComponent>("Button Base Mesh");
-    m_ButtonBaseMesh->SetupAttachment(RootComponent);
+    m_SwitchBaseMesh = CreateDefaultSubobject<UStaticMeshComponent>("Switch Base Mesh");
+    m_SwitchBaseMesh->SetupAttachment(RootComponent);
 
 }
 
