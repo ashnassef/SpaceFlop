@@ -3,3 +3,8 @@
 
 #include "SpaceFlopGameModeBase.h"
 
+int ASpaceFlopGameModeBase::GetRandomNumber()
+{
+    srand(rand());
+    return rand();
+}

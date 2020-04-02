@@ -14,4 +14,6 @@ class SPACEFLOP_API ASpaceFlopGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+    static int GetRandomNumber();
 };
