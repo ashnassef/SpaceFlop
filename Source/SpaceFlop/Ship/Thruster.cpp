@@ -28,35 +28,36 @@ AThruster::AThruster()
 void AThruster::BeginPlay()
 {
     Super::BeginPlay();
-    for (int i = 0; i < m_ParticleSystemComponents.Num(); i++)
-    {
-        m_ParticleSystemComponents[i] = UGameplayStatics::SpawnEmitterAttached(m_ParticleSystem,
-                                                                               m_Mesh,
-                                                                               m_Mesh->GetAllSocketNames()[i],
-                                                                               FVector::ZeroVector,
-                                                                               FRotator::ZeroRotator,
-                                                                               EAttachLocation::SnapToTarget);
-    }
 }
 
 // Called every frame
 void AThruster::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
 }
 
 void AThruster::ToggleParticleSystem(bool bIsActive)
 {
     for (UParticleSystemComponent* ParticleSystemComponent : m_ParticleSystemComponents)
     {
-        bIsActive ? ParticleSystemComponent->ActivateSystem() : ParticleSystemComponent->DeactivateSystem();
-        ParticleSystemComponent->Activate(bIsActive);
+        if (bIsActive)
+        {
+            ParticleSystemComponent->Activate();
+        }
+        else
+        {
+            ParticleSystemComponent->Deactivate();
+        }
     }
+}
+
+UParticleSystem* AThruster::GetParticleSystem()
+{
+    return m_ParticleSystem;
 }
 
 TArray<UParticleSystemComponent*> AThruster::GetParticleSystemComponents()
 {
-    return TArray<UParticleSystemComponent*>();
+    return m_ParticleSystemComponents;
 }
 

@@ -23,10 +23,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
         class UStaticMeshComponent* m_Mesh;
 
-    UPROPERTY(EditAnywhere, Category = Assets)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
         class UParticleSystem* m_ParticleSystem;
 
-    UPROPERTY(EditAnywhere, Category = Assets)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
         TArray<UParticleSystemComponent*> m_ParticleSystemComponents;
 
 
@@ -36,6 +36,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
 		void ToggleParticleSystem(bool bIsActive);
+
+	UFUNCTION(BlueprintCallable, Category = Effects)
+		UParticleSystem* GetParticleSystem();
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
 		TArray<UParticleSystemComponent*> GetParticleSystemComponents();

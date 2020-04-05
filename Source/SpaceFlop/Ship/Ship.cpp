@@ -57,17 +57,19 @@ void AShip::BeginPlay()
     TArray<FName> Sockets = GetRootComponent()->GetAllSocketNames();
     for (FName Socket : Sockets)
     {
-        if (Socket.ToString().Contains("_1") || Socket.ToString().Contains("_2"))
+        // Skip these sockets
+        if (Socket.ToString().Contains("_1") || Socket.ToString().Contains("_2") || Socket.ToString().Contains("SpawningPoint"))
         {
             continue;
         }
+        // Spawn Thrusters
         if (Socket.ToString().Contains("Thruster"))
         {
             AThruster* Thruster = GetWorld()->SpawnActor<AThruster>(m_ThrusterTemplate, FVector::ZeroVector, FRotator::ZeroRotator);
             Thruster->AttachToActor(this, FAttachmentTransformRules::SnapToTargetIncludingScale, Socket);
             m_Thrusters.Add(Thruster);
         }
-
+        // Spawn Consoles, Chairs, Buttons, and Switches
         if (Socket.ToString().Contains("Console") && ASpaceFlopGameModeBase::GetRandomNumber() % 2)
         {
             int SSO_Template = (ASpaceFlopGameModeBase::GetRandomNumber() % 2) + 3;
@@ -77,6 +79,9 @@ void AShip::BeginPlay()
             AStationaryShipObject* SSO_Chair = GetWorld()->SpawnActor<AStationaryShipObject>(m_ShipObjectTemplates[CHAIR], FVector::ZeroVector, FRotator::ZeroRotator);
             FName Chair_Socket = *("Socket_Chair" + FString::FromInt(GetDigitFromSocketName(Socket)));
             SSO_Chair->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Chair_Socket);
+            APawn* Astronaut = GetWorld()->SpawnActor<APawn>(m_AstronautTemplate, FVector(0, 130.0f, 215.0f), FRotator::ZeroRotator);
+            m_Astronauts.Add(Astronaut);
+            Astronaut->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Chair_Socket);
 
             if (SSO_Template == SMALLCONSOLE)
             {
@@ -101,6 +106,19 @@ void AShip::BeginPlay()
                 AActionableShipObject* ASO2 = GetWorld()->SpawnActor<AActionableShipObject>(m_ShipObjectTemplates[ASO2_Template], m_ShipBodyMesh->GetSocketLocation(ASO2_Socket), FRotator::ZeroRotator);
                 ASO2->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, ASO2_Socket);
             }
+        }
+        // Spawn more Buttons and Switches
+        if (Socket.ToString().Contains("Replicator") && ASpaceFlopGameModeBase::GetRandomNumber() % 2)
+        {
+            int ASO_Template = ASpaceFlopGameModeBase::GetRandomNumber() % 2;
+            AActionableShipObject* ASO = GetWorld()->SpawnActor<AActionableShipObject>(m_ShipObjectTemplates[ASO_Template], FVector::ZeroVector, FRotator::ZeroRotator);
+            ASO->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
+        }
+        // Spawn BackWall
+        if (Socket.ToString().Contains("BackWall"))
+        {
+            AStationaryShipObject* SSO = GetWorld()->SpawnActor<AStationaryShipObject>(m_ShipObjectTemplates[BACKWALL], FVector::ZeroVector, FRotator::ZeroRotator);
+            SSO->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
         }
     }
 }
@@ -147,12 +165,24 @@ void AShip::MoveUp(float Value)
         if (GetActorLocation().Z < 900.0f && Value > 0)
         {
             m_MovementDirection = Value;
+
+            m_Thrusters[TOPRIGHT]->ToggleParticleSystem(false);
+            m_Thrusters[TOPLEFT]->ToggleParticleSystem(false);
+            m_Thrusters[BOTTOMLEFT]->ToggleParticleSystem(true);
+            m_Thrusters[BOTTOMRIGHT]->ToggleParticleSystem(true);
+
             bCanMove = true;
         }
 
         if (GetActorLocation().Z > -900.0f && Value < 0)
         {
             m_MovementDirection = Value;
+
+            m_Thrusters[TOPRIGHT]->ToggleParticleSystem(true);
+            m_Thrusters[TOPLEFT]->ToggleParticleSystem(true);
+            m_Thrusters[BOTTOMLEFT]->ToggleParticleSystem(false);
+            m_Thrusters[BOTTOMRIGHT]->ToggleParticleSystem(false);
+
             bCanMove = true;
         }
     }
@@ -165,13 +195,25 @@ void AShip::Rotate(float Value)
         // Limit rotation about X-axis
         if (GetActorRotation().Roll < 25.0f && Value > 0)
         {
-            m_Roll = m_RotationSpeed;
+            m_Roll = m_RotationSpeed * Value;
+
+            m_Thrusters[TOPRIGHT]->ToggleParticleSystem(true);
+            m_Thrusters[TOPLEFT]->ToggleParticleSystem(false);
+            m_Thrusters[BOTTOMLEFT]->ToggleParticleSystem(true);
+            m_Thrusters[BOTTOMRIGHT]->ToggleParticleSystem(false);
+
             bCanRotate = true;
         }
 
         if (GetActorRotation().Roll > -21.0f && Value < 0)
         {
-            m_Roll = -m_RotationSpeed;
+            m_Roll = m_RotationSpeed * Value;
+
+            m_Thrusters[TOPRIGHT]->ToggleParticleSystem(false);
+            m_Thrusters[TOPLEFT]->ToggleParticleSystem(true);
+            m_Thrusters[BOTTOMLEFT]->ToggleParticleSystem(false);
+            m_Thrusters[BOTTOMRIGHT]->ToggleParticleSystem(true);
+
             bCanRotate = true;
         }
     }

@@ -15,8 +15,19 @@ enum TEMPLATES
     SWITCH          UMETA(DisplayName = SWITCH),
     CHAIR           UMETA(DisplayName = CHAIR),
     SMALLCONSOLE    UMETA(DisplayName = SMALLCONSOLE),
-    LARGECONSOLE    UMETA(DisplayName = LARGECONSOLE)
+    LARGECONSOLE    UMETA(DisplayName = LARGECONSOLE),
+    BACKWALL        UMETA(DisplayName = BACKWALL)
 };
+
+UENUM()
+enum THRUSTERS
+{
+    TOPRIGHT        UMETA(DisplayName = TOPRIGHT),
+    TOPLEFT         UMETA(DisplayName = TOPLEFT),
+    BOTTOMLEFT      UMETA(DisplayName = BOTTOMLEFT),
+    BOTTOMRIGHT     UMETA(DisplayName = BOTTOMRIGHT)
+};
+
 
 UCLASS()
 class SPACEFLOP_API AShip : public APawn
@@ -42,6 +53,12 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = Assets)
         TArray<AThruster*> m_Thrusters;
+
+    UPROPERTY(EditAnywhere, Category = Assets)
+        TArray<APawn*> m_Astronauts;
+
+    UPROPERTY(EditAnywhere, Category = Init)
+        TSubclassOf<APawn> m_AstronautTemplate;
 
     UPROPERTY(EditAnywhere, Category = Init)
         float m_ShipSpeed;
