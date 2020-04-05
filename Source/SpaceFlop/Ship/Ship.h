@@ -42,34 +42,34 @@ protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    UPROPERTY(EditAnywhere, Category = Assets)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
         class UStaticMeshComponent* m_ShipBodyMesh;
 
-    UPROPERTY(EditAnywhere, Category = Assets)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
         class UStaticMeshComponent* m_ShipGlassMesh;
 
-    UPROPERTY(EditAnywhere, Category = Assets)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
         class UCameraComponent* m_Camera;
 
-    UPROPERTY(EditAnywhere, Category = Assets)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
         TArray<AThruster*> m_Thrusters;
 
-    UPROPERTY(EditAnywhere, Category = Assets)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Assets)
         TArray<APawn*> m_Astronauts;
 
-    UPROPERTY(EditAnywhere, Category = Init)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
         TSubclassOf<APawn> m_AstronautTemplate;
 
-    UPROPERTY(EditAnywhere, Category = Init)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
         float m_ShipSpeed;
 
-    UPROPERTY(EditAnywhere, Category = Init)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
         float m_RotationSpeed;
 
-    UPROPERTY(EditAnywhere, Category = Init)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
         TArray<TSubclassOf<AShipObject>> m_ShipObjectTemplates;
 
-    UPROPERTY(EditAnywhere, Category = Init)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Init)
         TSubclassOf<AThruster> m_ThrusterTemplate;
 
 public:
