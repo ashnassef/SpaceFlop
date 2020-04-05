@@ -35,7 +35,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
-		void ToggleParticleSystem(bool bIsActive);
+		void ToggleParticleSystem(bool bIsActive, bool bNear = false, bool bFar = false);
 
 	UFUNCTION(BlueprintCallable, Category = Effects)
 		UParticleSystem* GetParticleSystem();

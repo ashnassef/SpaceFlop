@@ -36,17 +36,25 @@ void AThruster::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 }
 
-void AThruster::ToggleParticleSystem(bool bIsActive)
+void AThruster::ToggleParticleSystem(bool bIsActive, bool bNear, bool bFar)
 {
-    for (UParticleSystemComponent* ParticleSystemComponent : m_ParticleSystemComponents)
+    for (int i = 0; i < m_ParticleSystemComponents.Num(); i++)
     {
+        if (bNear && i != 0)
+        {
+            continue;
+        }
+        if (bFar && i != 2)
+        {
+            continue;
+        }
         if (bIsActive)
         {
-            ParticleSystemComponent->Activate();
+            m_ParticleSystemComponents[i]->Activate();
         }
         else
         {
-            ParticleSystemComponent->Deactivate();
+            m_ParticleSystemComponents[i]->Deactivate();
         }
     }
 }

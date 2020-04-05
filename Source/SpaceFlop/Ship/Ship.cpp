@@ -41,7 +41,9 @@ AShip::AShip()
     m_RotationSpeed = 10.0f;
     m_MovementDirection = 0;
     bCanMove = true;
-    bCanRotate = false;
+    bCanRoll = false;
+    bCanPitch = false;
+    bCanYaw = false;
 
     m_Pitch = 0;
     m_Yaw = 0;
@@ -55,6 +57,7 @@ void AShip::BeginPlay()
     Super::BeginPlay();
 
     TArray<FName> Sockets = GetRootComponent()->GetAllSocketNames();
+
     for (FName Socket : Sockets)
     {
         // Skip these sockets
@@ -75,13 +78,11 @@ void AShip::BeginPlay()
             int SSO_Template = (ASpaceFlopGameModeBase::GetRandomNumber() % 2) + 3;
             AStationaryShipObject* SSO_Console = GetWorld()->SpawnActor<AStationaryShipObject>(m_ShipObjectTemplates[SSO_Template], FVector::ZeroVector, FRotator::ZeroRotator);
             SSO_Console->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
-            
+
             AStationaryShipObject* SSO_Chair = GetWorld()->SpawnActor<AStationaryShipObject>(m_ShipObjectTemplates[CHAIR], FVector::ZeroVector, FRotator::ZeroRotator);
             FName Chair_Socket = *("Socket_Chair" + FString::FromInt(GetDigitFromSocketName(Socket)));
             SSO_Chair->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Chair_Socket);
-            APawn* Astronaut = GetWorld()->SpawnActor<APawn>(m_AstronautTemplate, FVector(0, 130.0f, 215.0f), FRotator::ZeroRotator);
-            m_Astronauts.Add(Astronaut);
-            Astronaut->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Chair_Socket);
+            m_UsedSockets.Add(Chair_Socket);
 
             if (SSO_Template == SMALLCONSOLE)
             {
@@ -95,7 +96,7 @@ void AShip::BeginPlay()
             {
                 int ASO1_Template = ASpaceFlopGameModeBase::GetRandomNumber() % 2;
                 int ASO2_Template = ASpaceFlopGameModeBase::GetRandomNumber() % 2;
-               
+
                 FString ASO1_String = Socket.ToString() + "_1L";
                 FName ASO1_Socket = FName(*ASO1_String);
                 AActionableShipObject* ASO1 = GetWorld()->SpawnActor<AActionableShipObject>(m_ShipObjectTemplates[ASO1_Template], m_ShipBodyMesh->GetSocketLocation(ASO1_Socket), FRotator::ZeroRotator);
@@ -128,6 +129,16 @@ void AShip::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    if (m_UsedSockets.Num())
+    {
+        SpawnAstronaut(m_UsedSockets[0]);
+    }
+    // Turn off thrusters when you aren't using them. Use fuel responsibly!
+    if (!bCanRoll && !bCanPitch && !bCanYaw && !bCanMove && m_Thrusters.Num() > 0)
+    {
+        ToggleThrusters();
+    }
+
     // Vertical movement update
     if (bCanMove)
     {
@@ -135,12 +146,18 @@ void AShip::Tick(float DeltaTime)
         bCanMove = false;
     }
 
-    // Rotation about X-axis update
-    if (bCanRotate)
+    // Rotation update
+    if (bCanRoll)
     {
-        FRotator newRotation = FRotator(m_Pitch, m_Yaw, m_Roll);
+        FRotator newRotation = FRotator(0, 0, m_Roll);
         AddActorLocalRotation(newRotation, true);
-        bCanRotate = false;
+        bCanRoll = false;
+    }
+    if (bCanPitch)
+    {
+        FRotator newRotation = FRotator(m_Pitch, 0, 0);
+        AddActorLocalRotation(newRotation, true);
+        bCanPitch = false;
     }
 }
 
@@ -149,7 +166,8 @@ void AShip::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
     PlayerInputComponent->BindAxis("MoveUp", this, &AShip::MoveUp);
-    PlayerInputComponent->BindAxis("MoveRight", this, &AShip::Rotate);
+    PlayerInputComponent->BindAxis("Roll", this, &AShip::Roll);
+    PlayerInputComponent->BindAxis("Pitch", this, &AShip::Pitch);
 }
 
 UPawnMovementComponent* AShip::GetMovementComponent() const
@@ -166,10 +184,7 @@ void AShip::MoveUp(float Value)
         {
             m_MovementDirection = Value;
 
-            m_Thrusters[TOPRIGHT]->ToggleParticleSystem(false);
-            m_Thrusters[TOPLEFT]->ToggleParticleSystem(false);
-            m_Thrusters[BOTTOMLEFT]->ToggleParticleSystem(true);
-            m_Thrusters[BOTTOMRIGHT]->ToggleParticleSystem(true);
+            ToggleThrusters(false, false, true, true);
 
             bCanMove = true;
         }
@@ -178,17 +193,14 @@ void AShip::MoveUp(float Value)
         {
             m_MovementDirection = Value;
 
-            m_Thrusters[TOPRIGHT]->ToggleParticleSystem(true);
-            m_Thrusters[TOPLEFT]->ToggleParticleSystem(true);
-            m_Thrusters[BOTTOMLEFT]->ToggleParticleSystem(false);
-            m_Thrusters[BOTTOMRIGHT]->ToggleParticleSystem(false);
+            ToggleThrusters(true, true, false, false);
 
             bCanMove = true;
         }
     }
 }
 
-void AShip::Rotate(float Value)
+void AShip::Roll(float Value)
 {
     if (m_MovementComponent && m_MovementComponent->UpdatedComponent == RootComponent)
     {
@@ -197,24 +209,43 @@ void AShip::Rotate(float Value)
         {
             m_Roll = m_RotationSpeed * Value;
 
-            m_Thrusters[TOPRIGHT]->ToggleParticleSystem(true);
-            m_Thrusters[TOPLEFT]->ToggleParticleSystem(false);
-            m_Thrusters[BOTTOMLEFT]->ToggleParticleSystem(true);
-            m_Thrusters[BOTTOMRIGHT]->ToggleParticleSystem(false);
+            ToggleThrusters(true, false, true, false);
 
-            bCanRotate = true;
+            bCanRoll = true;
         }
 
         if (GetActorRotation().Roll > -21.0f && Value < 0)
         {
             m_Roll = m_RotationSpeed * Value;
 
-            m_Thrusters[TOPRIGHT]->ToggleParticleSystem(false);
-            m_Thrusters[TOPLEFT]->ToggleParticleSystem(true);
-            m_Thrusters[BOTTOMLEFT]->ToggleParticleSystem(false);
-            m_Thrusters[BOTTOMRIGHT]->ToggleParticleSystem(true);
+            ToggleThrusters(false, true, false, true);
 
-            bCanRotate = true;
+            bCanRoll = true;
+        }
+    }
+}
+
+void AShip::Pitch(float Value)
+{
+    if (m_MovementComponent && m_MovementComponent->UpdatedComponent == RootComponent)
+    {
+        // Limit rotation about the Y axis
+        if (GetActorRotation().Pitch < 15.0f && Value > 0)
+        {
+            m_Pitch = m_RotationSpeed * Value * 0.75f;
+
+            ToggleThrusters(true, true, true, true, true, false);
+
+            bCanPitch = true;
+        }
+
+        if (GetActorRotation().Pitch > -15.0f && Value < 0)
+        {
+            m_Pitch = m_RotationSpeed * Value * 0.75f;
+
+            ToggleThrusters(true, true, true, true, false, true);
+
+            bCanPitch = true;
         }
     }
 }
@@ -247,6 +278,26 @@ int AShip::GetDigitFromSocketName(FName Socket)
     }
 
     return 0;
+}
+
+void AShip::ToggleThrusters(bool TopRight, bool TopLeft, bool BottomLeft, bool BottomRight, bool Near, bool Far)
+{
+    m_Thrusters[TOPRIGHT]->ToggleParticleSystem(TopRight, Near, Far);
+    m_Thrusters[TOPLEFT]->ToggleParticleSystem(TopLeft, Near, Far);
+    m_Thrusters[BOTTOMLEFT]->ToggleParticleSystem(BottomLeft, Near, Far);
+    m_Thrusters[BOTTOMRIGHT]->ToggleParticleSystem(BottomRight, Near, Far);
+}
+
+void AShip::SpawnAstronaut(FName Socket)
+{
+    APawn* Astronaut = GetWorld()->SpawnActor<APawn>(m_AstronautTemplate, FVector(0, 130.0f, 215.0f), FRotator::ZeroRotator);
+    if (Astronaut)
+    {
+        m_Astronauts.Add(Astronaut);
+        Astronaut->AttachToActor(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale, Socket);
+        Astronaut->SetOwner(this);
+        m_UsedSockets.Remove(Socket);
+    }
 }
 
 void AShip::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

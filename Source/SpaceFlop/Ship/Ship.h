@@ -82,19 +82,24 @@ public:
     virtual UPawnMovementComponent* GetMovementComponent() const override;
 
     void MoveUp(float Value);
-    void Rotate(float Value);
+    void Roll(float Value);
+    void Pitch(float Value);
 
     int GetDigitFromSocketName(FName Socket);
-
+    void ToggleThrusters(bool TopRight = false, bool TopLeft = false, bool BottomLeft = false, bool BottomRight = false, bool Near = false, bool Far = false);
+    void SpawnAstronaut(FName Socket);
     void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
     class UShipMovementComponent* m_MovementComponent;
 
-    bool bCanMove;
+    TArray<FName> m_UsedSockets;
 
     float m_MovementDirection;
 
-    bool bCanRotate;
+    bool bCanMove;
+    bool bCanRoll;
+    bool bCanPitch;
+    bool bCanYaw;
 
     float m_Pitch;
     float m_Yaw;
